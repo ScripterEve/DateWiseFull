@@ -1,0 +1,140 @@
+SUNMI Printing SDK Overview
+Update Time:2025-11-10 09:41:31
+I. How to integrate SDK
+SUNMI printing SDK can be obtained through remote repository, and you only need to add the dependency to the build.gradle of the module.
+
+
+Copy code
+android {
+    ...
+}
+
+dependencies {
+    implementation 'com.sunmi:printerx:1.0.17'
+}
+
+Version update instructions
+
+II. Demo Example
+You can refer to the SDK to use the Demo source code for development. Click the links below to download the Demos.
+
+Githubaddress
+
+Giteeaddress
+
+III. How to use the SDK
+After integrating the SDK, firstly you can use the getPrinter() method to get the printer, which is an asynchronous process. Generally, you can use a default printer object returned by the PrinterListen callback onDefPrinter() method to control the built-in printing services of the device.
+
+When multiple printers, SUNMI printers or other printers, are connected to a SUNMI device as needed, a set of printer objects will also be returned through the onPrinters() callback for you to choose from.
+
+The printer object can use the following APIs to manage printers and meet different printing needs, including:
+
+QueryApi: Printer query API
+CommandApi: Command set printing API
+ LineApi: Receipt printing API
+CanvasApi: Label printing API
+FileApi: File printing API
+CashDrawerApi: Cash drawer control API
+LcdApi LCD: LCD customer display control API
+1. Get a printer
+
+Copy code
+void getPrinter(Context context, PrinterListen printerListen)
+
+Parameter
+
+Description
+
+Context context
+
+The incoming session context, and the context of the application will be used.
+
+PrinterListen printerListen
+
+When you pass in the callback object, the available printer can be gotten asynchronously through the callback.
+
+The PrinterListen can be held continuously, and the SUNMI device will dynamically update the new printers found or added in real time. You can dynamically update locally available printers based on business needs.
+
+PrinterListen
+
+Copy code
+void onDefPrinter(Printer printer)
+
+void onPrinters(List<Printer> printers)
+
+参数
+
+Description
+
+Printer printer
+
+The default printer object
+
+List printers
+
+The list of printer objects that are integrated to a SUNMI device
+
+Generally, the printer object returned by onDefrinter is a SUNMI built-in printer. When the SUNMI device has no printing configuration, the custom printer added through SUNMI printing device can also be set as the default printer. In this case, the printer object will be changed to the custom printer.
+
+Calling onPrinters method will return a list of all supported and added printers on the SUNMI device.
+
+Printer
+Printer instance object, which is used to complete the print job.
+
+When multiple printers are connected to a SUNMI device, you can get the unique ID of the printer by calling printer.toString. You can save this ID and configure the printer with the specified ID to implement different business scenarios.
+
+The unique ID of the printer is only valid for the current SUNMI device. The unique ID of the same printer on different SUNMI devices is different, so it cannot be used for different devices.
+
+2. API for setting log output
+
+Copy code
+void log(boolean enable, String tag)
+
+During the normal use of the printer, in order not to interrupt the whole printing process, the API will not directly return failure for problems such as parameter transmission error and method use error occurring in the printing process. Therefore, for the convenience of adaptations, you can enable this log switch to obtain the problems occurred in the development process (it is suggested to disable it when publishing). The default tag is: [PrinterX]
+
+3. Release the SDK
+
+Copy code
+void destroy()
+
+You can call this method when the SDK is no longer in use, thus to release the print resources occupied by the application.
+
+4. Jump to the printer configuration page
+
+Copy code
+boolean startSettings(Activity activity, SettingItem item) 
+
+Since the global properties of some Sunmi printers can only be configured in the system settings, we provide an interface method to jump to the corresponding configuration interface.
+
+SettingItem
+
+Enum Type
+
+Description
+
+TYPE
+
+Jump to the configuration item of switching printer type, allowing users to switch the current printer to thermal/label, etc.
+
+DENSITY
+
+Jump to the printer density configuration item for users to set the print density value.
+
+PAPER
+
+Jump to the printer paper specification configuration item, allowing users to switch the paper specification of the current printer
+
+FONT
+
+Jump to the printer font configuration item, allowing users to switch the current printer font
+
+ALL
+
+Jump to other configuration items
+
+The jump printer configuration is used for Sunmi printers and requires the print service version to be above 6.6.32. If the print service version does not support the jump configuration, this method will return failure.
+
+IV. SDK exceptions
+SUNMI Printing SDK is a set of APIs for various types of printers. Different types of APIs correspond to different types of printer calls. If you call unsupported APIs for some specific printers, the SDK exception may happen. For example, an exception will happen when calling the API to build the contents of a thermal receipt for a laser printer.
+
+SUNMI printing SDK basically is applicable to all SUNMI devices. For some models, the APIs may not be supported since the system version is too old. In this case, please contact SUNMI technical support to upgrade the device to the latest version.
